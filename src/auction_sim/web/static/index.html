@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f5">
+  <title>Inference Market · Auction Pricing Simulator</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Inference Market home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="brand-name">Inference Market</span>
+      </a>
+      <div class="topbar-right">
+        <span class="environment-tag"><span class="tag-dot"></span>SIMULATION</span>
+        <span id="connection" class="connection" data-state="connecting"><span class="connection-dot"></span><span id="connection-text">Connecting</span></span>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">AUCTION PRICING SIMULATOR</p>
+          <h1>Inference order book</h1>
+          <p class="subtitle">One bundled market. Two views of token demand.</p>
+        </div>
+        <div class="run-summary" aria-live="polite">
+          <span class="run-label">RUN</span><span id="run-id" class="mono">—</span>
+          <span class="summary-separator"></span>
+          <span id="run-status" class="status-pill" data-status="loading">Loading</span>
+        </div>
+      </section>
+
+      <section class="control-strip panel" aria-label="Simulation controls">
+        <div class="control-group primary-controls">
+          <button id="toggle-run" class="button button-primary" type="button" disabled aria-label="Pause simulation">
+            <span class="button-icon" id="toggle-icon" aria-hidden="true">Ⅱ</span><span id="toggle-label">Pause</span>
+          </button>
+          <button id="restart" class="button button-quiet" type="button" disabled><span aria-hidden="true">↻</span> Restart</button>
+        </div>
+        <div class="control-divider" aria-hidden="true"></div>
+        <label class="select-control"><span>Speed</span><select id="speed" disabled aria-label="Simulation speed"><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option><option value="5">5×</option></select></label>
+        <label class="select-control mechanism-control"><span>Mechanism</span><select id="mechanism" disabled aria-label="Auction mechanism"><option value="uniform">Uniform price</option><option value="first_price_hybrid">First-price hybrid</option></select></label>
+        <span class="control-spacer"></span>
+        <div class="clock-readout"><span class="clock-label">SIM TIME</span><strong id="sim-clock" class="mono">—</strong><span class="clock-total">/ <span id="sim-horizon">—</span></span></div>
+      </section>
+
+      <section class="metric-grid" aria-label="Market summary">
+        <article class="metric-card panel"><div class="metric-label">PENDING REQUESTS <span class="metric-info" title="Requests waiting for the next batch">i</span></div><div class="metric-value mono" id="pending-count">—</div><div class="metric-note" id="pending-note">Across the bundled queue</div></article>
+        <article class="metric-card panel"><div class="metric-label">BATCH CAPACITY</div><div class="metric-value metric-capacity"><span class="mono" id="active-slots">—</span><span class="metric-unit"> / <span id="slot-capacity">—</span></span></div><div class="capacity-track"><span id="capacity-fill"></span></div><div class="metric-note" id="capacity-note">Active requests · capacity</div></article>
+        <article class="metric-card panel"><div class="metric-label">KV CAPACITY</div><div class="metric-value mono"><span id="kv-percent">—</span><span class="metric-unit">%</span></div><div class="capacity-track kv-track"><span id="kv-fill"></span></div><div class="metric-note" id="kv-note">Reserved context capacity</div></article>
+        <article class="metric-card panel price-metric"><div class="metric-label">LAST CLEARING PRICE</div><div class="metric-value mono" id="last-price">—</div><div class="metric-note">USD per 1K tokens</div></article>
+        <article class="metric-card panel"><div class="metric-label">COMPLETED</div><div class="metric-value mono" id="completed-count">—</div><div class="metric-note" id="timeout-note">Timeouts <span id="timeout-count" class="mono">—</span></div></article>
+      </section>
+
+      <section class="market-grid" aria-label="Live order books">
+        <article class="book-panel panel input-panel">
+          <div class="book-heading">
+            <div class="book-title-wrap"><span class="view-icon input-icon" aria-hidden="true">IN</span><div><h2>Input reservations</h2><p>Prompt tokens · pending input demand</p></div></div>
+            <span class="book-count"><span id="input-level-count">0</span> levels</span>
+          </div>
+          <div class="book-summary"><span>Same bids, input-token quantities</span><span class="bucket-label">$1 / 1K increments</span></div>
+          <div class="book-table-wrap">
+            <table class="book-table"><caption class="sr-only">Input token reservation order book</caption><thead><tr><th scope="col">BID <span>USD / 1K</span></th><th scope="col">INPUT QTY <span>tokens</span></th><th scope="col">CUMULATIVE <span>tokens</span></th><th scope="col">ORDERS</th></tr></thead><tbody id="input-book"></tbody></table>
+            <div id="input-empty" class="empty-book" hidden><span class="empty-glyph" aria-hidden="true">⌁</span><strong>No bids yet</strong><span>Waiting for the first requests to enter the queue.</span></div>
+          </div>
+          <div class="floor-note"><span class="floor-swatch"></span><span>Reserve floor</span><strong id="input-floor">—</strong><span class="floor-unit">USD / 1K</span></div>
+        </article>
+
+        <article class="book-panel panel output-panel">
+          <div class="book-heading">
+            <div class="book-title-wrap"><span class="view-icon output-icon" aria-hidden="true">OUT</span><div><h2>Output reservations</h2><p>Max tokens · reserved, not actual usage</p></div></div>
+            <span class="book-count"><span id="output-level-count">0</span> levels</span>
+          </div>
+          <div class="book-summary"><span>Same bids, output-token quantities</span><span class="bucket-label">$1 / 1K increments</span></div>
+          <div class="book-table-wrap">
+            <table class="book-table"><caption class="sr-only">Output token reservation order book</caption><thead><tr><th scope="col">BID <span>USD / 1K</span></th><th scope="col">OUTPUT QTY <span>reserved tokens</span></th><th scope="col">CUMULATIVE <span>tokens</span></th><th scope="col">ORDERS</th></tr></thead><tbody id="output-book"></tbody></table>
+            <div id="output-empty" class="empty-book" hidden><span class="empty-glyph" aria-hidden="true">⌁</span><strong>No bids yet</strong><span>Waiting for the first requests to enter the queue.</span></div>
+          </div>
+          <div class="floor-note"><span class="floor-swatch"></span><span>Reserve floor</span><strong id="output-floor">—</strong><span class="floor-unit">USD / 1K</span></div>
+        </article>
+      </section>
+
+      <section class="lower-grid">
+        <article class="history-panel panel">
+          <div class="section-heading"><div><h2>Clearing price</h2><p>Recorded trades · USD per 1K tokens</p></div><span class="history-legend"><span></span>Clearing price</span></div>
+          <div id="history-chart" class="history-chart"><svg id="price-svg" viewBox="0 0 720 176" role="img" aria-label="Clearing price history"></svg><div id="history-empty" class="history-empty"><span class="empty-glyph" aria-hidden="true">⌁</span><strong>No admissions yet</strong><span>Price history will appear after the first admission auction clears.</span></div></div>
+          <div class="chart-axis"><span id="history-start">—</span><span>SIMULATION TIME</span><span id="history-end">—</span></div>
+        </article>
+        <aside class="details-panel panel">
+          <div class="section-heading"><div><h2>Run details</h2><p>Deterministic synthetic workload</p></div><span class="details-mark" aria-hidden="true">◈</span></div>
+          <dl class="details-list"><div><dt>Seed</dt><dd id="seed-value" class="mono">—</dd></div><div><dt>Load profile</dt><dd id="load-value">—</dd></div><div><dt>Price precision</dt><dd class="mono">$1 / 1K tokens</dd></div><div><dt>Market structure</dt><dd>Single bundled-price queue</dd></div></dl>
+        </aside>
+      </section>
+
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <footer class="page-footer"><span>Both views show the same requests at one bundled rate.</span><span>Output quantities are maximum reservations; actual output usage is not known in advance.</span></footer>
+    </main>
+  </div>
+</body>
+</html>

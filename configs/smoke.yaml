@@ -1,0 +1,31 @@
+# A small functional check, not a statistically powered research experiment.
+name: synthetic-smoke
+horizon_s: 120
+economics: {marginal_cost_per_token: 0.001}
+server: {t0_s: 0.005, k_s: 0.0005, prefill_s_per_token: 0.00002, prefill_chunk_tokens: 256, max_batch_size: 32, max_kv_tokens: 65536}
+demand:
+  rate_rps: 1.0
+  diurnal_amplitude: 0.25
+  output_cap_tokens: 32
+  reservation_slack: 1.25
+  agent_rate_rps: 0.1
+seeds:
+  calibration: [0, 1]
+  evaluation: [100, 101]
+slo: {fill_rate: 0.95, reference_rate_rps: 0.1}
+oracle: {enabled: true, max_jobs: 6, max_nodes: 1000}
+candidate_grid:
+  uniform_auction: {reserve_per_token: [0.001]}
+  first_price_hybrid: {reserve_per_token: [0.001]}
+  flat_price: {price_per_token: [0.002], reserve_per_token: [0.001]}
+  static_tiers: {base_price_per_token: [0.002], reserve_per_token: [0.001], standard_wait_s: [30], flex_wait_s: [300]}
+  time_of_day_grid:
+    prices_per_token: [[0.002, 0.002]]
+    edges_s: [[0, 60, 86400]]
+    reserve_per_token: [0.001]
+  utilization_controller:
+    initial_price_per_token: [0.002]
+    reserve_per_token: [0.001]
+    target_utilization: [0.8]
+    update_interval_s: [10]
+    gain: [0.1]

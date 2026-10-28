@@ -1,0 +1,45 @@
+economics:
+  marginal_cost_per_token: 0.001
+name: synthetic-low-load
+horizon_s: 3600
+oracle: {enabled: true, max_jobs: 6, max_nodes: 100000}
+server:
+  t0_s: 0.005
+  k_s: 0.0005
+  prefill_s_per_token: 0.00002
+  prefill_chunk_tokens: 256
+  max_batch_size: 32
+  max_kv_tokens: 65536
+demand:
+  rate_rps: 0.5
+  diurnal_amplitude: 0.25
+  output_cap_tokens: 384
+  reservation_slack: 1.0
+  agent_rate_rps: 0.08
+seeds:
+  calibration: [0, 1, 2, 3, 4]
+  evaluation: [100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+slo:
+  fill_rate: 0.95
+candidate_grid:
+  uniform_auction:
+    reserve_per_token: [0.002, 0.008]
+  first_price_hybrid:
+    reserve_per_token: [0.002, 0.008]
+  flat_price:
+    price_per_token: [0.004, 0.012]
+    reserve_per_token: [0.001]
+  static_tiers:
+    base_price_per_token: [0.008]
+    reserve_per_token: [0.001]
+    standard_wait_s: [30]
+    flex_wait_s: [300]
+  time_of_day_grid:
+    prices_per_token: [[0.004, 0.004, 0.004, 0.004, 0.004, 0.004, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.008, 0.012, 0.012, 0.012, 0.012, 0.012, 0.004, 0.004, 0.004]]
+    reserve_per_token: [0.001]
+  utilization_controller:
+    initial_price_per_token: [0.006]
+    reserve_per_token: [0.001]
+    target_utilization: [0.8]
+    update_interval_s: [60]
+    gain: [0.1]
