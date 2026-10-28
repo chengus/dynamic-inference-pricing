@@ -1,0 +1,320 @@
+{
+  "retrieved_date": "2026-10-27",
+  "retrieval_timezone": "America/New_York",
+  "currency": "USD",
+  "rate_unit": "per_1m_tokens",
+  "rates": [
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-astra",
+      "mode": "standard",
+      "input_per_million": 10,
+      "output_per_million": 50,
+      "cached_input_per_million": 1,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-astra",
+      "mode": "flex",
+      "input_per_million": 5.0,
+      "output_per_million": 25.0,
+      "cached_input_per_million": 0.5,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Slower responses and possible resource unavailability; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-astra",
+      "mode": "batch",
+      "input_per_million": 5.0,
+      "output_per_million": 25.0,
+      "cached_input_per_million": 0.5,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Asynchronous completion window up to 24 hours; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-astra",
+      "mode": "fast",
+      "input_per_million": 20,
+      "output_per_million": 100,
+      "cached_input_per_million": 2,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Posted premium service tier; actual provider latency not simulated."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-sol",
+      "mode": "standard",
+      "input_per_million": 2,
+      "output_per_million": 10,
+      "cached_input_per_million": 0.1,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-sol",
+      "mode": "flex",
+      "input_per_million": 1.0,
+      "output_per_million": 5.0,
+      "cached_input_per_million": 0.05,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Slower responses and possible resource unavailability; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-sol",
+      "mode": "batch",
+      "input_per_million": 1.0,
+      "output_per_million": 5.0,
+      "cached_input_per_million": 0.05,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Asynchronous completion window up to 24 hours; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-sol",
+      "mode": "fast",
+      "input_per_million": 4,
+      "output_per_million": 20,
+      "cached_input_per_million": 0.2,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Posted premium service tier; actual provider latency not simulated."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-terra",
+      "mode": "standard",
+      "input_per_million": 1,
+      "output_per_million": 5,
+      "cached_input_per_million": 0.05,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-terra",
+      "mode": "flex",
+      "input_per_million": 0.5,
+      "output_per_million": 2.5,
+      "cached_input_per_million": 0.025,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Slower responses and possible resource unavailability; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-terra",
+      "mode": "batch",
+      "input_per_million": 0.5,
+      "output_per_million": 2.5,
+      "cached_input_per_million": 0.025,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Asynchronous completion window up to 24 hours; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6.1-terra",
+      "mode": "fast",
+      "input_per_million": 2,
+      "output_per_million": 10,
+      "cached_input_per_million": 0.1,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Posted premium service tier; actual provider latency not simulated."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-luna",
+      "mode": "standard",
+      "input_per_million": 0.1,
+      "output_per_million": 0.5,
+      "cached_input_per_million": 0.01,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-luna",
+      "mode": "flex",
+      "input_per_million": 0.05,
+      "output_per_million": 0.25,
+      "cached_input_per_million": 0.005,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Slower responses and possible resource unavailability; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-luna",
+      "mode": "batch",
+      "input_per_million": 0.05,
+      "output_per_million": 0.25,
+      "cached_input_per_million": 0.005,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Asynchronous completion window up to 24 hours; not an equivalent interactive SLO."
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-6-luna",
+      "mode": "fast",
+      "input_per_million": 0.2,
+      "output_per_million": 1.0,
+      "cached_input_per_million": 0.02,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "notes": "Short-context, direct API, text tokens; no residency uplift or tools. Posted premium service tier; actual provider latency not simulated."
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Fable 5.1",
+      "mode": "standard",
+      "input_per_million": 10,
+      "output_per_million": 50,
+      "cached_input_per_million": 0.25,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Fable 5.1",
+      "mode": "batch",
+      "input_per_million": 5.0,
+      "output_per_million": 25.0,
+      "cached_input_per_million": 0.125,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay. Asynchronous batch; not an equivalent interactive SLO.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Opus 5.5",
+      "mode": "standard",
+      "input_per_million": 4,
+      "output_per_million": 20,
+      "cached_input_per_million": 0.2,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Opus 5.5",
+      "mode": "batch",
+      "input_per_million": 2.0,
+      "output_per_million": 10.0,
+      "cached_input_per_million": 0.1,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay. Asynchronous batch; not an equivalent interactive SLO.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Sonnet 5.5",
+      "mode": "standard",
+      "input_per_million": 2,
+      "output_per_million": 10,
+      "cached_input_per_million": 0.1,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Sonnet 5.5",
+      "mode": "batch",
+      "input_per_million": 1.0,
+      "output_per_million": 5.0,
+      "cached_input_per_million": 0.05,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay. Asynchronous batch; not an equivalent interactive SLO.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Haiku 5.5",
+      "mode": "standard",
+      "input_per_million": 0.1,
+      "output_per_million": 0.5,
+      "cached_input_per_million": 0.01,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay. Applies only to prompts of at most 100,000 tokens.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Haiku 5.5",
+      "mode": "batch",
+      "input_per_million": 0.05,
+      "output_per_million": 0.25,
+      "cached_input_per_million": 0.005,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Global direct API; no residency uplift or tools. Cache writes billed separately and excluded from uncached replay. Applies only to prompts of at most 100,000 tokens. Asynchronous batch; not an equivalent interactive SLO.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "Anthropic",
+      "model": "Claude Opus 5.5",
+      "mode": "fast",
+      "input_per_million": 8,
+      "output_per_million": 40,
+      "cached_input_per_million": 0.4,
+      "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "notes": "Published Opus 5.5 fast-mode rates. No Batch combination; no latency assumption in replay.",
+      "model_name_kind": "official display name, not an inferred API model ID"
+    },
+    {
+      "provider": "DeepSeek",
+      "model": "deepseek-v4-pro",
+      "mode": "peak",
+      "input_per_million": 1.32,
+      "output_per_million": 3.96,
+      "cached_input_per_million": 0.044,
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "notes": "DeepSeek-V4-Pro-0813. Peak Monday-Friday UTC 01:00-04:00 and 06:00-10:00, excluding Chinese public holidays; all other times off-peak. Replay treats each regime separately, not as a time-weighted actual invoice. Search/fetch excluded."
+    },
+    {
+      "provider": "DeepSeek",
+      "model": "deepseek-v4-pro",
+      "mode": "off_peak",
+      "input_per_million": 0.66,
+      "output_per_million": 1.98,
+      "cached_input_per_million": 0.022,
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "notes": "DeepSeek-V4-Pro-0813. Peak Monday-Friday UTC 01:00-04:00 and 06:00-10:00, excluding Chinese public holidays; all other times off-peak. Replay treats each regime separately, not as a time-weighted actual invoice. Search/fetch excluded."
+    },
+    {
+      "provider": "DeepSeek",
+      "model": "deepseek-flash",
+      "mode": "peak",
+      "input_per_million": 0.3,
+      "output_per_million": 1.2,
+      "cached_input_per_million": 0.006,
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "notes": "DeepSeek-V4.1-Flash-1017. Peak Monday-Friday UTC 01:00-04:00 and 06:00-10:00, excluding Chinese public holidays; all other times off-peak. Replay treats each regime separately, not as a time-weighted actual invoice. Search/fetch excluded."
+    },
+    {
+      "provider": "DeepSeek",
+      "model": "deepseek-flash",
+      "mode": "off_peak",
+      "input_per_million": 0.15,
+      "output_per_million": 0.6,
+      "cached_input_per_million": 0.003,
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "notes": "DeepSeek-V4.1-Flash-1017. Peak Monday-Friday UTC 01:00-04:00 and 06:00-10:00, excluding Chinese public holidays; all other times off-peak. Replay treats each regime separately, not as a time-weighted actual invoice. Search/fetch excluded."
+    }
+  ],
+  "scope": "First-party text API rates, short prompts; representative models, not an exhaustive catalog. Rates verified from fetched official pages.",
+  "replay_assumptions": [
+    "No paid API calls are made.",
+    "Cache-miss input and actual output token counts only; no cache hits, cache writes, tools, taxes, residency surcharges, enterprise discounts, or free credits.",
+    "Identical numeric token quantities are replayed across tariffs. Tokenizers and output lengths differ on real text; this is not a same-task benchmark.",
+    "Provider model quality, capacity, latency, batching implementation, and SLOs are not simulated by invoice replay.",
+    "Simulator reserve 0.001 per token equals $1000 per million tokens; its money scale is illustrative, not calibrated to provider rates."
+  ],
+  "additional_sources": [
+    "https://developers.openai.com/api/docs/guides/batch",
+    "https://developers.openai.com/api/docs/guides/flex-processing",
+    "https://developers.openai.com/api/docs/guides/fast-mode"
+  ]
+}

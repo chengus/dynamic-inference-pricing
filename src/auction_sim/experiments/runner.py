@@ -10,7 +10,7 @@ from typing import Any
 
 from ..demand import DemandConfig, make_workload
 from ..engine import Simulator
-from ..models import Admission, Decision, ServerConfig, SimulationResult
+from ..models import Admission, Decision, ServerConfig
 from .metrics import summarize
 
 
@@ -81,6 +81,25 @@ def _references(workloads, server: ServerConfig, demand: DemandConfig, reference
             reference_demand)
 
 
+def _attach_oracle_metrics(metrics: dict[str, Any], oracle: Any) -> None:
+    """Add the shared hindsight oracle result to already-aggregated metrics."""
+    oracle_welfare = getattr(oracle, "welfare", None)
+    exact = bool(getattr(oracle, "exact", False))
+    bound = getattr(oracle, "upper_bound", None)
+    welfare = metrics["welfare"]
+    exact_ratio = welfare / oracle_welfare if exact and oracle_welfare else None
+    lower_ratio = welfare / bound if not exact and bound else None
+    metrics["oracle"] = {
+        "exact": exact, "welfare": oracle_welfare, "upper_bound": bound,
+        "algorithm": getattr(oracle, "algorithm", None), "nodes": getattr(oracle, "nodes", None),
+        "efficiency_ratio": exact_ratio, "certified_lower_ratio": lower_ratio,
+        "efficiency_interval": ([exact_ratio, exact_ratio] if exact_ratio is not None else
+                                [lower_ratio, 1.0] if lower_ratio is not None else None),
+        "interpretation": "exact optimum ratio on supplied decision calendar" if exact else
+        ("certified lower ratio to supplied upper bound" if bound else "no certified ratio"),
+    }
+
+
 def run_experiment(config: dict[str, Any], *, calibration_only: bool = False) -> dict[str, Any]:
     """Run calibration and, unless requested otherwise, frozen evaluation."""
     horizon = float(config.get("horizon_s", 3600))
@@ -101,7 +120,12 @@ def run_experiment(config: dict[str, Any], *, calibration_only: bool = False) ->
     references, reference_demand = _references(cal_workloads, server, demand, reference_rate_rps,
                                                 required_segments)
     policies: dict[str, Any] = {}
-    eval_raw: dict[str, list[SimulationResult]] = {}
+    # Aggregate each evaluation immediately. Keeping SimulationResult objects
+    # for every policy/seed retains the full token-step usage trace and price
+    # series, which grows quickly for multi-hour sweeps.
+    eval_rows_by_policy: dict[str, list[dict[str, Any]]] = {}
+    eval_request_rows: dict[str, list[list[dict[str, Any]]]] = {}
+    eval_calendars: dict[int, set[float]] = {w.seed: set() for w in eval_workloads}
     simulator = Simulator(server)
     for name, parameter_grid in grid.items():
         candidates = _candidate_dicts(parameter_grid)
@@ -119,11 +143,29 @@ def run_experiment(config: dict[str, Any], *, calibration_only: bool = False) ->
                             "mean_revenue_per_gpu_hour": avg_revenue, "seeds": seed_rows})
         feasible_records = [r for r in records if r["feasible"]]
         winner = max(feasible_records, key=lambda x: x["mean_revenue_per_gpu_hour"]) if feasible_records else None
-        eval_raw[name] = []
+        eval_rows_by_policy[name] = []
+        eval_request_rows[name] = []
         if winner:
             for workload in eval_workloads:
                 result = simulator.run(workload.jobs, _make_policy(name, winner["parameters"]), workload.horizon_s)
-                eval_raw[name].append(result)
+                metrics = summarize(result, server, low_load_reference=references,
+                                    fill_slo=fill_slo, required_segments=required_segments)
+                eval_rows_by_policy[name].append({"seed": workload.seed, "metrics": metrics})
+                eval_calendars[workload.seed].update(
+                    r.admitted_at_s for r in result.requests if r.admitted_at_s is not None)
+                eval_request_rows[name].append([
+                    {"request_id": r.job.order.request_id,
+                     "segment": r.job.order.segment,
+                     "order_type": r.job.order.order_type,
+                     "prompt_tokens": r.job.order.prompt_tokens,
+                     "actual_output_tokens": r.job.actual_output_tokens,
+                     "max_tokens": r.job.order.max_tokens,
+                     "status": r.status,
+                     "admitted_at_s": r.admitted_at_s,
+                     "first_token_at_s": r.first_token_at_s,
+                     "completed_at_s": r.completed_at_s,
+                     "revenue": r.revenue}
+                    for r in result.requests])
         policies[name] = {"calibration_candidates": records,
                           "selected_candidate_id": winner["candidate_id"] if winner else None,
                           "selected_parameters": winner["parameters"] if winner else None,
@@ -140,11 +182,8 @@ def run_experiment(config: dict[str, Any], *, calibration_only: bool = False) ->
         from ..oracle import OracleSearchLimit, exact_hindsight_oracle
         max_jobs = oracle_cfg.get("max_jobs", 6)
         max_nodes = oracle_cfg.get("max_nodes", 100000)
-        for index, workload in enumerate(eval_workloads):
-            common = [result for rows in eval_raw.values() if len(rows) > index
-                      for result in (rows[index],)]
-            calendar = sorted({r.admitted_at_s for result in common for r in result.requests
-                               if r.admitted_at_s is not None})
+        for workload in eval_workloads:
+            calendar = sorted(eval_calendars[workload.seed])
             if len(workload.jobs) > max_jobs:
                 upper_bound = sum(job.total_value for job in workload.jobs)
                 oracle_by_seed[workload.seed] = {"status": "skipped_job_limit", "job_count": len(workload.jobs),
@@ -169,19 +208,21 @@ def run_experiment(config: dict[str, Any], *, calibration_only: bool = False) ->
                                                                             algorithm="search_limit_bound",
                                                                             nodes=exc.nodes),
                                                  "calendar_definition": "union of selected-policy admission times for this evaluation seed"}
-    for name, raw_rows in eval_raw.items():
+    for name, rows in eval_rows_by_policy.items():
         if calibration_only:
             continue
-        rows = []
-        for index, (workload, result) in enumerate(zip(eval_workloads, raw_rows)):
+        for row, workload in zip(rows, eval_workloads):
             oracle_row = oracle_by_seed.get(workload.seed, {})
             oracle = oracle_row.get("result")
-            metrics = summarize(result, server, low_load_reference=references, fill_slo=fill_slo,
-                                required_segments=required_segments, oracle=oracle)
-            rows.append({"seed": workload.seed, "metrics": metrics,
-                         "oracle_status": oracle_row.get("status", "disabled"),
-                         "oracle_decision_times_s": oracle_row.get("decision_times_s", [])})
+            metrics = row["metrics"]
+            if oracle is not None:
+                _attach_oracle_metrics(metrics, oracle)
+            row["oracle_status"] = oracle_row.get("status", "disabled")
+            # Full shared calendars live once under report.oracle; repeating
+            # them on every policy row bloats reports without adding data.
+            row["oracle_calendar_seed"] = workload.seed
         policies[name]["evaluation"] = rows
+        policies[name]["evaluation_request_rows"] = eval_request_rows[name]
         feasible = bool(rows) and all(x["metrics"]["slo"]["all_segments_feasible"] for x in rows)
         policies[name]["evaluation_all_seeds_feasible"] = feasible
         policies[name]["report_status"] = "evaluated_slo_pass" if feasible else ("evaluated_slo_failure" if rows else "no_calibration_feasible_candidate")

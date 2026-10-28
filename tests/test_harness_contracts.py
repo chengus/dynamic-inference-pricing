@@ -2,12 +2,14 @@
 
 from pathlib import Path
 from dataclasses import replace
+import gc
 from types import SimpleNamespace
+import weakref
 
 from auction_sim.demand import Workload
 from auction_sim.experiments.config import load_config
 from auction_sim.experiments import runner
-from auction_sim.models import Job, Order, RequestResult, SimulationResult
+from auction_sim.models import Job, Order, PricePoint, RequestResult, SimulationResult, UsageInterval
 
 
 def fixture_harness(monkeypatch):
@@ -54,6 +56,35 @@ def test_calibration_only_never_generates_evaluation_workloads(monkeypatch):
     assert len({id(policy) for policy in policies_seen}) == len(policies_seen)
 
 
+def test_evaluation_streams_full_results_but_preserves_compact_metrics(monkeypatch):
+    config, _, _ = fixture_harness(monkeypatch)
+    refs = []
+    original = runner.Simulator.run
+
+    def traced_run(self, jobs, policy, horizon):
+        # At most the immediately previous result can be live while Python
+        # evaluates the next run() call. Accumulating eval_raw would exceed 1.
+        assert sum(ref() is not None for ref in refs) <= 1
+        result = original(self, jobs, policy, horizon)
+        result = replace(result,
+                         usage=(UsageInterval(0.0, .1, True, 1, 1, 2),),
+                         prices=(PricePoint(0.0, .25, 1, "clearing"),))
+        refs.append(weakref.ref(result))
+        return result
+
+    monkeypatch.setattr(runner.Simulator, "run", traced_run)
+    report = runner.run_experiment(config)
+    gc.collect()
+    assert all(ref() is None for ref in refs)
+    policy = report["policies"]["uniform_auction"]
+    metrics = policy["evaluation"][0]["metrics"]
+    assert metrics["price_trade_count"] == 1
+    assert metrics["busy_utilization"] > 0
+    assert metrics["by_group"]["all"]["completed"] == 2
+    assert len(policy["evaluation_request_rows"][0]) == 2
+    assert policy["evaluation_request_rows"][0][0]["actual_output_tokens"] == 1
+
+
 def test_frozen_evaluation_uses_one_shared_oracle_per_seed(monkeypatch):
     config, seeds_seen, _ = fixture_harness(monkeypatch)
     config["oracle"] = {"enabled": True, "max_jobs": 6, "max_nodes": 100}
@@ -74,6 +105,9 @@ def test_frozen_evaluation_uses_one_shared_oracle_per_seed(monkeypatch):
     for policy in report["policies"].values():
         assert policy["evaluation_all_seeds_feasible"]
         assert policy["evaluation"][0]["metrics"]["oracle"]["efficiency_ratio"] == 1
+        assert policy["evaluation"][0]["oracle_calendar_seed"] == 100
+        assert "oracle_decision_times_s" not in policy["evaluation"][0]
+    assert report["oracle"]["by_evaluation_seed"]["100"]["decision_times_s"] == [0.0, 0.5]
 
 
 def test_evaluation_slo_failure_is_excluded_from_revenue_ranking(monkeypatch):

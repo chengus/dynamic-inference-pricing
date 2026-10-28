@@ -44,6 +44,21 @@ Exact hindsight welfare is bounded to small cohorts and is only computed when `o
 
 The optional `economics.marginal_cost_per_token` is a synthetic marginal-cost estimate. Candidate reserves must meet that floor. If it is omitted, the report labels cost as unspecified and applies no economic floor. The low-load reference uses a near-zero reserve only to normalize latency; it does not define the economic floor.
 
+## Provider comparison study
+
+The [reviewed October 27, 2026 comparison](reports/provider-comparison-2026-10-27.md)
+contains the controlled low/medium/high-load results, official OpenAI/Anthropic/
+DeepSeek tariffs, invoice replay, and limitations. The comparison uses common
+per-seed observation windows to avoid bias from policy-specific queue drain.
+Provider invoices reprice identical numeric token counts; no paid API calls are
+made, and provider model quality or latency is not measured.
+
+```sh
+uv run --locked python -m auction_sim.provider_study --config configs/provider-study.yaml --allow-simulation
+# Recompute summaries from existing saved data, without another simulation:
+uv run --locked python -m auction_sim.provider_study --reaggregate-existing
+```
+
 ## Local live order book
 
 Start the local dashboard against one continuously running, wall-clock-paced
@@ -86,7 +101,7 @@ Demand is synthetic: arrivals use a split diurnal nonhomogeneous Poisson arrival
 
 Presets include two auction mechanisms and four baselines. Candidate grids are deliberately small and visible in YAML. The simulator does not yet model user strategic bidding, cancellation, token-level billing disputes, multi-GPU placement, network delays, preemption, or adaptive SLO targets. Results should be interpreted as controlled synthetic comparisons.
 
-The complete validation suite passes: **81 tests passed**, including engine timelines, the bounded oracle, a seeded M/M/1 queueing check, public live snapshots, and local HTTP controls. The observer is checked to leave simulated outcomes unchanged. Pure checks cover deterministic demand properties, metric accounting, configuration validation, CLI guards, and harness wiring with fixed result fixtures. The authorized quick experiment completed successfully; larger research experiments have not been run. The dashboard's pause, resume, speed, restart, and mechanism controls were also checked in the browser.
+The complete validation suite passes: **86 tests passed**, including engine timelines, the bounded oracle, a seeded M/M/1 queueing check, public live snapshots, and local HTTP controls. The observer is checked to leave simulated outcomes unchanged. Pure checks cover deterministic demand properties, metric accounting, configuration validation, CLI guards, and harness wiring with fixed result fixtures. The authorized quick experiment completed successfully; larger research experiments have not been run. The dashboard's pause, resume, speed, restart, and mechanism controls were also checked in the browser.
 
 Run pure checks with `uv run pytest`. Engine and oracle tests are skipped by default, and an additional test guard blocks unmarked attempts to execute the engine. Use `uv run pytest --allow-simulation` to include those checks, and `uv run ruff check src tests` for lint checks. uv uses the project's isolated `.venv` rather than globally installed test plugins. Add `--locked` to `uv run` commands to require the saved dependency resolution without updating it.
 
